@@ -1,3 +1,10 @@
-venv/
+# Environments
 .env
+venv/
+env/
 __pycache__/
+
+# Database & Cache
+*.db
+ecobuddy.db
+.streamlit/
