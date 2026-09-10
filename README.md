@@ -20,5 +20,5 @@ Built entirely with open-source frameworks and local persistence:
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/code-by-abhi31/ecobuddy.git](https://github.com/code-by-abhi31/ecobuddy.git)
+   git clone https://github.com/code-by-abhi31/ecobuddy.git
    cd ecobuddy
