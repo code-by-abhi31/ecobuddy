@@ -1,32 +1,51 @@
 import streamlit as st
+import uuid
 from agents import ecobuddy_graph
+from database import add_points, get_user_stats
 
 st.set_page_config(page_title="EcoBuddy", page_icon="🌱", layout="centered")
 
-if "last_result" not in st.session_state:
-    st.session_state["last_result"] = ""
-
-# Main Screen (No more fake coins sidebar)
 st.title("🌱 EcoBuddy: AI Sustainability & ROI Guide")
-st.caption("Analyze environmental impact and calculate your financial savings.")
+st.caption("Analyze environmental impact, calculate ROI, and track eco-actions.")
 
-item = st.text_input("Enter a product or item (e.g., 'Single-use plastic water bottle'):")
+# Static demo username (or tie to authentication later)
+USER = "abhi_dev"
 
-if st.button("Analyze Product"):
-    if item.strip():
-        with st.spinner("Analyzing footprint and calculating ROI..."):
-            result = ecobuddy_graph.invoke({
-                "user_query": item,
-                "route_decision": "",
-                "impact_data": "", 
-                "alternatives": "", 
-                "gamification_update": "", 
-                "final_output": ""
-            })
-            st.session_state["last_result"] = result["final_output"]
-            st.rerun()
-    else:
-        st.warning("Please enter a product to analyze.")
+# Sidebar: Live cloud stats from Supabase
+stats = get_user_stats(USER)
+with st.sidebar:
+    st.header("👤 Eco Profile")
+    st.metric(label="Total Points", value=stats["total_points"])
+    st.metric(label="Items Analyzed", value=stats["items_logged"])
 
-if st.session_state["last_result"]:
-    st.markdown(st.session_state["last_result"])
+# Initialize session state for conversation
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "thread_id" not in st.session_state:
+    st.session_state.thread_id = str(uuid.uuid4())
+
+# Render message history
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# Chat Input Box
+if user_input := st.chat_input("Enter a product or ask a follow-up..."):
+    st.chat_message("user").markdown(user_input)
+    st.session_state.messages.append({"role": "user", "content": user_input})
+
+    config = {"configurable": {"thread_id": st.session_state.thread_id}}
+    
+    with st.chat_message("assistant"):
+        with st.spinner("EcoBuddy is thinking..."):
+            result = ecobuddy_graph.invoke({"user_query": user_input}, config=config)
+            output = result["final_output"]
+            st.markdown(output)
+            
+            # If a new valid product was analyzed, persist points to Supabase
+            if result.get("route_decision") == "PRODUCT":
+                new_points = add_points(USER, user_input, points=10)
+                st.toast(f"🌱 +10 Eco-points recorded to cloud! Total: {new_points}")
+                st.rerun()
+
+    st.session_state.messages.append({"role": "assistant", "content": output})
