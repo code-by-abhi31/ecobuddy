@@ -57,8 +57,28 @@ def impact_agent(state: AgentState):
     return {"impact_data": res.content.strip()}
 
 def coach_agent(state: AgentState):
-    prompt = f"Given this impact: {state['impact_data']}, recommend 2 affordable eco-friendly alternatives in short bullet points. NO TABLES."
-    res = llm.invoke([SystemMessage(content="Sustainable Lifestyle Coach."), HumanMessage(content=prompt)], max_tokens=150)
+    item = state.get("user_query", "")
+    impact = state.get("impact_data", "")
+    
+    prompt = f"""
+    User's current item: '{item}'
+    Environmental Impact: {impact}
+    
+    You are a strict Sustainable Lifestyle Coach. You must evaluate the item against this EXACT material sustainability hierarchy (from worst to best long-term ROI):
+    1. Single-use Plastics / Styrofoam (WORST)
+    2. Reusable Plastics
+    3. Glass (High transport emissions, fragile)
+    4. Aluminum (Lightweight, infinitely recyclable)
+    5. Food-grade Stainless Steel (Maximum durability, best long-term lifespan) (BEST)
+    
+    RULES:
+    - Identify where the user's item sits on this hierarchy.
+    - You MUST ONLY recommend 2 alternatives that are HIGHER on this scale.
+    - NEVER recommend a downgrade (e.g., swapping steel for glass) or a lateral move.
+    - If the user's item is ALREADY at the top (e.g., Stainless Steel), explicitly state they are using the optimal material. Do not suggest buying a new material. Instead, recommend focusing on maintenance (e.g., replacing a lost silicone seal) to extend its life.
+    - Output in short bullet points. NO TABLES.
+    """
+    res = llm.invoke([SystemMessage(content="Strict Sustainable Lifestyle Coach."), HumanMessage(content=prompt)], max_tokens=200)
     return {"alternatives": res.content.strip()}
 
 def roi_agent(state: AgentState):
