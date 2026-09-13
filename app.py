@@ -30,7 +30,8 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # Chat Input Box
-if user_input := st.chat_input("Enter a product or ask a follow-up..."):
+# Chat Input Box
+if user_input := st.chat_input("Ask Ecobuddy"):
     st.chat_message("user").markdown(user_input)
     st.session_state.messages.append({"role": "user", "content": user_input})
 
@@ -42,10 +43,11 @@ if user_input := st.chat_input("Enter a product or ask a follow-up..."):
             output = result["final_output"]
             st.markdown(output)
             
-            # If a new valid product was analyzed, persist points to Supabase
-            if result.get("route_decision") == "PRODUCT":
-                new_points = add_points(USER, user_input, points=10)
-                st.toast(f"🌱 +10 Eco-points recorded to cloud! Total: {new_points}")
-                st.rerun()
-
+    # 1. SAVE THE MESSAGE FIRST
     st.session_state.messages.append({"role": "assistant", "content": output})
+    
+    # 2. THEN TRIGGER THE DATABASE AND RERUN
+    if result.get("route_decision") == "PRODUCT":
+        new_points = add_points(USER, user_input, points=10)
+        st.toast(f"🌱 +10 Eco-points recorded to cloud! Total: {new_points}")
+        st.rerun()
