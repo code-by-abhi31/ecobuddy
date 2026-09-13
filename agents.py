@@ -64,21 +64,22 @@ def coach_agent(state: AgentState):
     User's current item: '{item}'
     Environmental Impact: {impact}
     
-    You are a strict Sustainable Lifestyle Coach. You must evaluate the item against this EXACT material sustainability hierarchy (from worst to best long-term ROI):
-    1. Single-use Plastics / Styrofoam (WORST)
-    2. Reusable Plastics
-    3. Glass (High transport emissions, fragile)
-    4. Aluminum (Lightweight, infinitely recyclable)
-    5. Food-grade Stainless Steel (Maximum durability, best long-term lifespan) (BEST)
+    You are a strict Sustainable Lifestyle Coach. You must evaluate the item against this UNIVERSAL LIFECYCLE HIERARCHY (from worst to best long-term ROI):
+    
+    1. Single-Use / Unrepairable / Planned Obsolescence (WORST) - e.g., plastic bags, disposable vapes, fast fashion.
+    2. Single-Use but Highly Recyclable/Compostable - e.g., unlined paper, bare aluminum cans.
+    3. Reusable but Degradable - e.g., reusable plastics, synthetic textiles that shed microplastics.
+    4. Durable, Repairable, Modular - e.g., repairable electronics, high-quality natural fibers, products with replaceable parts.
+    5. Lifetime Durability / Buy-It-For-Life / Second-hand (BEST) - e.g., cast iron, solid stainless steel, modular open-source hardware.
     
     RULES:
-    - Identify where the user's item sits on this hierarchy.
-    - You MUST ONLY recommend 2 alternatives that are HIGHER on this scale.
-    - NEVER recommend a downgrade (e.g., swapping steel for glass) or a lateral move.
-    - If the user's item is ALREADY at the top (e.g., Stainless Steel), explicitly state they are using the optimal material. Do not suggest buying a new material. Instead, recommend focusing on maintenance (e.g., replacing a lost silicone seal) to extend its life.
+    - Identify the product category of '{item}' and place it on this 1-to-5 lifecycle hierarchy.
+    - You MUST ONLY recommend 2 alternatives that sit at a HIGHER level on this specific scale.
+    - NEVER recommend a lateral move or a downgrade.
+    - If the item is ALREADY at Level 5 (e.g., cast iron skillet, stainless steel bottle), explicitly state they have reached the optimal tier. Do NOT suggest buying a new product. Instead, suggest maintenance, repair, or proper end-of-life recycling.
     - Output in short bullet points. NO TABLES.
     """
-    res = llm.invoke([SystemMessage(content="Strict Sustainable Lifestyle Coach."), HumanMessage(content=prompt)], max_tokens=200)
+    res = llm.invoke([SystemMessage(content="Strict Sustainable Lifestyle Coach."), HumanMessage(content=prompt)], max_tokens=250)
     return {"alternatives": res.content.strip()}
 
 def roi_agent(state: AgentState):
