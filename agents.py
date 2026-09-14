@@ -73,6 +73,7 @@ def coach_agent(state: AgentState):
     5. Lifetime Durability / Buy-It-For-Life / Second-hand (BEST) - e.g., cast iron, solid stainless steel, modular open-source hardware.
     
     RULES:
+    - UTILITY CONSTRAINT: The alternative MUST match or improve upon the form factor, portability, and primary use-case of the original item. If the user inputs a lightweight, foldable, or portable item (like a cloth bag), DO NOT recommend heavy, rigid, or wildly impractical items (like a steel basket). The alternative must actually make sense for a normal human to carry and use.
     - Identify the product category of '{item}' and place it on this 1-to-5 lifecycle hierarchy.
     - You MUST ONLY recommend 2 alternatives that sit at a HIGHER level on this specific scale.
     - NEVER recommend a lateral move or a downgrade.
